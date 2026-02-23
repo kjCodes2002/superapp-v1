@@ -1,18 +1,26 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { AppSchema } from '../types/AppSchema';
+import FormScreen from './FormScreen';
 
 interface Props {
-    schema: AppSchema;
+  schema: AppSchema;
 }
 
-export default function RuntimeRenderer({schema}: Props) {
-    return (
-        <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold' }}>
+export default function RuntimeRenderer({ schema }: Props) {
+  const firstScreen = schema.screens[0];
+  const entity = schema.entities.find(e => e.name === firstScreen.entity);
+
+  if (!entity) {
+    return <Text>Error: Entity not found</Text>;
+  }
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Text style={{ fontSize: 22, fontWeight: 'bold', padding: 20 }}>
         {schema.appName}
       </Text>
-      <Text>Runtime Loaded Successfully</Text>
+      <FormScreen entity={entity} />
     </View>
-    )
+  );
 }
