@@ -1,26 +1,38 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Button } from 'react-native';
 import { AppSchema } from '../types/AppSchema';
 import FormScreen from './FormScreen';
+import ListScreen from './ListScreen';
 
 interface Props {
   schema: AppSchema;
 }
 
 export default function RuntimeRenderer({ schema }: Props) {
-  const firstScreen = schema.screens[0];
-  const entity = schema.entities.find(e => e.name === firstScreen.entity);
+  const [currentScreen, setCurrentScreen] = useState<'list' | 'form'>('list');
+  const [records, setRecords] = useState<Record<string, any>[]>([]);
 
-  if (!entity) {
-    return <Text>Error: Entity not found</Text>;
+  const entity = schema.entities[0];
+
+  function handleAdd(data: Record<string, any>) {
+    setRecords(prev => [...prev, data]);
+    setCurrentScreen('list');
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', padding: 20 }}>
+    <View style={{ flex: 1, padding: 20 }}>
+      <Text style={{ fontSize: 22, fontWeight: 'bold' }}>
         {schema.appName}
       </Text>
-      <FormScreen entity={entity} />
+
+      {currentScreen === 'list' ? (
+        <>
+          <ListScreen records={records} />
+          <Button title="Add New" onPress={() => setCurrentScreen('form')} />
+        </>
+      ) : (
+        <FormScreen entity={entity} onSubmit={handleAdd} />
+      )}
     </View>
   );
 }
